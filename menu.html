@@ -7,6 +7,7 @@
   <title>Menu — Scan2Serve</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/menu.css">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
 
@@ -411,16 +412,72 @@
       document.getElementById('checkout-modal').classList.remove('active');
     }
 
-    function placeOrder() {
-      Orders.load();
+    async function placeOrder() {
       const name = document.getElementById('co-name').value.trim() || 'Guest';
       const paymentMethod = document.getElementById('co-payment').value;
       const notes = document.getElementById('co-notes').value.trim();
+      
+      if (paymentMethod === 'razorpay') {
+        const amount = Cart.getTotal();
+        try {
+          const configRes = await fetch('/api/config');
+          const config = await configRes.json();
+          
+          const response = await fetch('/api/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount })
+          });
+          
+          if (!response.ok) {
+            const err = await response.json();
+            showToast('Failed to start payment: ' + (err.error || 'Unknown error'), 'error');
+            return;
+          }
+          
+          const orderData = await response.json();
+          
+          const options = {
+            key: config.key_id,
+            amount: orderData.amount,
+            currency: orderData.currency,
+            name: 'Scan2Serve',
+            description: 'Order Payment',
+            order_id: orderData.id,
+            handler: function (response) {
+              finalizeOrder(name, notes, paymentMethod, response.razorpay_payment_id);
+            },
+            prefill: { name: name },
+            theme: { color: '#D4AF37' }
+          };
+          
+          const rzp = new Razorpay(options);
+          rzp.on('payment.failed', function (response){
+            showToast('Payment Failed: ' + response.error.description, 'error');
+          });
+          rzp.open();
+        } catch (err) {
+          showToast('Payment gateway error. Is the backend running?', 'error');
+          console.error(err);
+        }
+      } else {
+        finalizeOrder(name, notes, paymentMethod, null);
+      }
+    }
+
+    function finalizeOrder(name, notes, paymentMethod, transactionId) {
+      Orders.load();
       const order = Orders.create(Cart.items, tableNum, name, notes, paymentMethod);
+      if (transactionId) {
+        order.transactionId = transactionId;
+        Orders.save(); // Orders.create already calls save, but let's re-save transactionId
+      }
+      
       Cart.clear();
       closeCheckout();
       renderMenu();
       renderCartSidebar();
+      
       // Show success modal
       document.getElementById('order-id-display').textContent = `Order ${order.id}`;
       document.getElementById('track-order-link').href = `order-status.html?order=${order.id}`;

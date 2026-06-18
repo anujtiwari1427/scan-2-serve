@@ -1,0 +1,27 @@
+{
+  "name": "new-folder-(3)",
+  "version": "1.0.0",
+  "description": "Scan2Serve is a modern, responsive, frontend-only web application designed for restaurants to offer an intimate fine dining experience with a seamless QR ordering system. It features a complete customer-facing menu, real-time order tracking, and a secure kitchen admin dashboard.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anujtiwari1427/scan-2-serve.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/anujtiwari1427/scan-2-serve/issues"
+  },
+  "homepage": "https://github.com/anujtiwari1427/scan-2-serve#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "razorpay": "^2.9.6"
+  }
+}
