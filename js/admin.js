@@ -219,7 +219,7 @@ function downloadQR(tableNum) {
   const canvas = wrap.querySelector('canvas');
   if (!canvas) { showToast('QR canvas not ready', 'error'); return; }
   const link = document.createElement('a');
-  link.download = `velvet-table-${tableNum}-qr.png`;
+  link.download = `scan2serve-${tableNum}-qr.png`;
   link.href = canvas.toDataURL('image/png');
   link.click();
   showToast(`QR code for Table ${tableNum} downloaded!`, 'success');
