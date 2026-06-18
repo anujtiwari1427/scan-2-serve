@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Velvet Table — An intimate fine dining experience. Scan our QR code to order from your table with no waiting.">
+  <title>Velvet Table — Fine Dining & QR Ordering</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    /* ── Hero ── */
+    .hero {
+      position: relative; min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: url('assets/hero.png') center/cover no-repeat;
+    }
+    .hero-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg,
+        rgba(10,8,2,0.88) 0%,
+        rgba(15,10,5,0.75) 50%,
+        rgba(8,6,2,0.82) 100%);
+    }
+    .hero-content {
+      position: relative; z-index: 1; padding: 160px 0 80px;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(212,175,55,0.08);
+      border: 1px solid var(--border-gold);
+      border-radius: 100px; padding: 8px 20px;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 24px;
+    }
+    .hero-eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 2s infinite; }
+    .hero-title { max-width: 700px; margin-bottom: 24px; }
+    .hero-title em { font-style: italic; color: var(--gold); display: block; }
+    .hero-subtitle { max-width: 500px; color: rgba(245,240,232,0.65); font-size: 1.05rem; line-height: 1.7; margin-bottom: 40px; }
+    .hero-cta { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-scroll {
+      position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 1;
+      color: rgba(245,240,232,0.4); font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase;
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(180deg, transparent, rgba(212,175,55,0.6));
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+    @keyframes scrollLine { 0%, 100% { opacity: 0.3; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(1.2); } }
+
+    /* ── Stats Bar ── */
+    .stats-bar {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 0;
+    }
+    .stats-bar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+    .stats-bar-item { text-align: center; border-right: 1px solid var(--border); }
+    .stats-bar-item:last-child { border-right: none; }
+    .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); font-weight: 700; }
+    .stat-text { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.04em; }
+
+    /* ── About ── */
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .about-image-wrap { position: relative; }
+    .about-image-main { border-radius: var(--radius-xl); width: 100%; aspect-ratio: 4/5; object-fit: cover; }
+    .about-image-accent {
+      position: absolute; bottom: -32px; right: -32px;
+      width: 55%; aspect-ratio: 1; border-radius: var(--radius-lg);
+      object-fit: cover;
+      border: 4px solid var(--bg-primary);
+      box-shadow: var(--shadow);
+    }
+    .about-features { display: flex; flex-direction: column; gap: 20px; margin-top: 32px; }
+    .about-feature { display: flex; gap: 16px; }
+    .feature-icon-wrap {
+      width: 44px; height: 44px; border-radius: var(--radius);
+      background: rgba(212,175,55,0.1); border: 1px solid var(--border-gold);
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .about-feature h4 { font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
+    .about-feature p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── QR Section ── */
+    .qr-section {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .qr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .qr-steps { display: flex; flex-direction: column; gap: 28px; }
+    .qr-step { display: flex; gap: 20px; align-items: flex-start; }
+    .step-num {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: var(--bg-primary); font-weight: 700; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-body h4 { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+    .step-body p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+    .qr-demo-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      text-align: center;
+      box-shadow: var(--shadow-gold), var(--shadow);
+    }
+    .qr-demo-img {
+      width: 200px; height: 200px; margin: 0 auto 20px;
+      background: white; border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px;
+    }
+    .qr-demo-img svg { width: 100%; height: 100%; }
+    .qr-pattern {
+      width: 176px; height: 176px;
+      background: repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0 0 / 8px 8px;
+      border-radius: 4px;
+    }
+
+    /* ── Menu Preview ── */
+    .menu-preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+    .preview-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: var(--transition); cursor: pointer;
+    }
+    .preview-card:hover { border-color: var(--border-gold); transform: translateY(-6px); box-shadow: var(--shadow), var(--shadow-gold); }
+    .preview-img { width: 100%; height: 200px; object-fit: cover; }
+    .preview-body { padding: 20px; }
+    .preview-cat { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+    .preview-name { font-size: 1.05rem; font-weight: 600; margin-bottom: 6px; }
+    .preview-price { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--gold); }
+
+    /* ── Gallery ── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: 260px 260px;
+      gap: 12px;
+    }
+    .gallery-img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius); transition: transform 0.5s ease; }
+    .gallery-img:hover { transform: scale(1.02); }
+    .gallery-item { overflow: hidden; border-radius: var(--radius); }
+    .gallery-item:first-child { grid-row: 1 / span 2; }
+
+    /* ── Contact ── */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+    .contact-detail { display: flex; gap: 16px; margin-bottom: 28px; }
+    .contact-icon {
+      width: 44px; height: 44px; border-radius: var(--radius);
+      background: rgba(212,175,55,0.1); border: 1px solid var(--border-gold);
+      display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .contact-detail h4 { font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+    .contact-detail p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+    .reservation-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      box-shadow: var(--shadow-gold);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .about-grid, .qr-grid, .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+      .about-image-accent { display: none; }
+      .stats-bar-grid { grid-template-columns: 1fr 1fr; }
+      .menu-preview-grid { grid-template-columns: 1fr 1fr; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .gallery-item:first-child { grid-row: auto; }
+    }
+    @media (max-width: 600px) {
+      .hero-cta { flex-direction: column; }
+      .menu-preview-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .stats-bar-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══ NAVBAR ═══ -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-logo">
+        <span>🕯</span> Velvet Table
+      </a>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#menu-preview">Menu</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#contact">Contact</a>
+        <a href="menu.html?table=1" class="btn btn-gold btn-sm" style="border-radius:8px;">Order Now</a>
+        <a href="admin.html" class="btn btn-ghost btn-sm" style="border-radius:8px;">Admin</a>
+      </div>
+      <div class="nav-hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-content container">
+      <div class="hero-eyebrow" data-animate>
+        <span class="dot"></span>
+        Now Open — Reserve Your Table
+      </div>
+      <h1 class="hero-title" data-animate data-delay="0.1s">
+        Fine Dining,
+        <em>Reimagined.</em>
+      </h1>
+      <p class="hero-subtitle" data-animate data-delay="0.2s">
+        Scan. Order. Savour. Experience seamless QR table ordering paired with
+        world-class cuisine crafted by our award-winning chefs.
+      </p>
+      <div class="hero-cta" data-animate data-delay="0.3s">
+        <a href="menu.html?table=1" class="btn btn-gold btn-lg">
+          🍽 Browse Menu
+        </a>
+        <a href="#how-it-works" class="btn btn-outline btn-lg">
+          📱 How It Works
+        </a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      Scroll
+    </div>
+  </section>
+
+  <!-- ═══ STATS BAR ═══ -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-bar-grid">
+        <div class="stats-bar-item" data-animate>
+          <div class="stat-num">12+</div>
+          <div class="stat-text">Years of Excellence</div>
+        </div>
+        <div class="stats-bar-item" data-animate data-delay="0.1s">
+          <div class="stat-num">3</div>
+          <div class="stat-text">Michelin Stars</div>
+        </div>
+        <div class="stats-bar-item" data-animate data-delay="0.2s">
+          <div class="stat-num">40+</div>
+          <div class="stat-text">Signature Dishes</div>
+        </div>
+        <div class="stats-bar-item" data-animate data-delay="0.3s">
+          <div class="stat-num">20</div>
+          <div class="stat-text">Private Tables</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ABOUT ═══ -->
+  <section class="section" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-image-wrap" data-animate>
+          <img class="about-image-main" src="assets/food-spread.png" alt="Our cuisine">
+          <img class="about-image-accent" src="assets/steak.png" alt="Signature dish">
+        </div>
+        <div data-animate data-delay="0.2s">
+          <span class="section-label">Our Story</span>
+          <div class="gold-divider left" style="margin-top:10px"></div>
+          <h2 style="margin-top:16px">A Sanctuary for <em style="font-style:italic;color:var(--gold)">Food Lovers</em></h2>
+          <p style="color:var(--text-muted);margin-top:20px;line-height:1.8;font-size:0.95rem">
+            Founded in 2012, Velvet Table was born from a passion for transforming dining into a 
+            multi-sensory journey. Every dish tells a story — sourced from local artisan producers 
+            and reimagined by our Michelin-starred head chef.
+          </p>
+          <div class="about-features">
+            <div class="about-feature">
+              <div class="feature-icon-wrap">👨‍🍳</div>
+              <div>
+                <h4>Award-Winning Chefs</h4>
+                <p>Our team of 15 culinary artists trained across Europe's finest kitchens.</p>
+              </div>
+            </div>
+            <div class="about-feature">
+              <div class="feature-icon-wrap">🌿</div>
+              <div>
+                <h4>Farm to Table</h4>
+                <p>Seasonal ingredients sourced within 50 miles, supporting local farmers.</p>
+              </div>
+            </div>
+            <div class="about-feature">
+              <div class="feature-icon-wrap">📱</div>
+              <div>
+                <h4>Contactless QR Ordering</h4>
+                <p>Modern ordering technology for a seamless, personalised experience.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <section class="section qr-section" id="how-it-works">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:60px" data-animate>
+        <span class="section-label">QR Ordering</span>
+        <div class="gold-divider"></div>
+        <h2 style="margin-top:16px">Order From Your Table</h2>
+        <p style="color:var(--text-muted);margin-top:12px;max-width:500px;margin-left:auto;margin-right:auto;font-size:0.95rem">
+          No apps to download. No waiting for a waiter. Just scan, browse, and order.
+        </p>
+      </div>
+      <div class="qr-grid">
+        <div data-animate>
+          <div class="qr-steps">
+            <div class="qr-step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <h4>Scan the QR Code</h4>
+                <p>Each table has a unique QR code. Simply open your camera app and scan to instantly load the menu for your table.</p>
+              </div>
+            </div>
+            <div class="qr-step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <h4>Browse & Customise</h4>
+                <p>Explore our full menu with photos and descriptions. Filter by dietary preference and add items with a tap.</p>
+              </div>
+            </div>
+            <div class="qr-step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <h4>Place Your Order</h4>
+                <p>Review your cart, add special instructions, and send directly to the kitchen — instantly.</p>
+              </div>
+            </div>
+            <div class="qr-step">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <h4>Sit Back & Enjoy</h4>
+                <p>Track your order status in real-time. Our team will bring your food when it's perfectly ready.</p>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:36px">
+            <a href="menu.html?table=1" class="btn btn-gold">Try Demo Order →</a>
+          </div>
+        </div>
+        <div data-animate data-delay="0.2s">
+          <div class="qr-demo-card">
+            <div style="font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-faint);margin-bottom:8px">🪑 Table 5</div>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:4px">Velvet Table</h3>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:20px">Scan to view menu & order</p>
+            <div class="qr-demo-img">
+              <!-- SVG QR Code Placeholder -->
+              <svg viewBox="0 0 176 176" xmlns="http://www.w3.org/2000/svg" style="width:176px;height:176px">
+                <rect width="176" height="176" fill="white"/>
+                <!-- Top-left finder -->
+                <rect x="8" y="8" width="56" height="56" fill="#000"/><rect x="16" y="16" width="40" height="40" fill="#fff"/><rect x="24" y="24" width="24" height="24" fill="#000"/>
+                <!-- Top-right finder -->
+                <rect x="112" y="8" width="56" height="56" fill="#000"/><rect x="120" y="16" width="40" height="40" fill="#fff"/><rect x="128" y="24" width="24" height="24" fill="#000"/>
+                <!-- Bottom-left finder -->
+                <rect x="8" y="112" width="56" height="56" fill="#000"/><rect x="16" y="120" width="40" height="40" fill="#fff"/><rect x="24" y="128" width="24" height="24" fill="#000"/>
+                <!-- Data pattern -->
+                <rect x="72" y="8" width="8" height="8" fill="#000"/><rect x="88" y="8" width="8" height="8" fill="#000"/><rect x="96" y="8" width="8" height="8" fill="#000"/>
+                <rect x="72" y="24" width="8" height="8" fill="#000"/><rect x="80" y="32" width="8" height="8" fill="#000"/><rect x="96" y="16" width="8" height="8" fill="#000"/>
+                <rect x="72" y="72" width="8" height="8" fill="#000"/><rect x="80" y="72" width="8" height="8" fill="#000"/><rect x="88" y="80" width="8" height="8" fill="#000"/>
+                <rect x="96" y="72" width="8" height="8" fill="#000"/><rect x="104" y="80" width="8" height="8" fill="#000"/><rect x="112" y="72" width="8" height="8" fill="#000"/>
+                <rect x="72" y="88" width="8" height="8" fill="#000"/><rect x="88" y="96" width="8" height="8" fill="#000"/><rect x="96" y="88" width="8" height="8" fill="#000"/>
+                <rect x="72" y="104" width="8" height="8" fill="#000"/><rect x="80" y="112" width="8" height="8" fill="#000"/><rect x="96" y="104" width="8" height="8" fill="#000"/>
+                <rect x="112" y="88" width="8" height="8" fill="#000"/><rect x="120" y="96" width="8" height="8" fill="#000"/><rect x="128" y="88" width="8" height="8" fill="#000"/>
+                <rect x="136" y="96" width="8" height="8" fill="#000"/><rect x="144" y="88" width="8" height="8" fill="#000"/><rect x="152" y="96" width="8" height="8" fill="#000"/>
+                <rect x="120" y="112" width="8" height="8" fill="#000"/><rect x="136" y="112" width="8" height="8" fill="#000"/><rect x="144" y="120" width="8" height="8" fill="#000"/>
+                <rect x="152" y="112" width="8" height="8" fill="#000"/><rect x="128" y="128" width="8" height="8" fill="#000"/><rect x="136" y="136" width="8" height="8" fill="#000"/>
+                <rect x="152" y="128" width="8" height="8" fill="#000"/><rect x="120" y="144" width="8" height="8" fill="#000"/><rect x="128" y="152" width="8" height="8" fill="#000"/>
+                <rect x="144" y="152" width="8" height="8" fill="#000"/><rect x="160" y="144" width="8" height="8" fill="#000"/>
+              </svg>
+            </div>
+            <p style="font-size:0.78rem;color:var(--text-faint);margin-bottom:24px">Point your camera here to order</p>
+            <a href="menu.html?table=5" class="btn btn-gold w-full" style="justify-content:center">
+              Open Demo Menu
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ MENU PREVIEW ═══ -->
+  <section class="section" id="menu-preview">
+    <div class="container">
+      <div class="flex-between" style="flex-wrap:wrap;gap:20px" data-animate>
+        <div>
+          <span class="section-label">Our Cuisine</span>
+          <div class="gold-divider left" style="margin-top:10px"></div>
+          <h2 style="margin-top:12px">Signature Selections</h2>
+        </div>
+        <a href="menu.html?table=1" class="btn btn-outline">View Full Menu →</a>
+      </div>
+      <div class="menu-preview-grid">
+        <div class="preview-card" onclick="location.href='menu.html?table=1'" data-animate>
+          <img class="preview-img" src="assets/steak.png" alt="Ribeye Steak">
+          <div class="preview-body">
+            <div class="preview-cat">Mains</div>
+            <div class="preview-name">Prime Ribeye Steak</div>
+            <div class="preview-price">₹5,699</div>
+          </div>
+        </div>
+        <div class="preview-card" onclick="location.href='menu.html?table=1'" data-animate data-delay="0.1s">
+          <img class="preview-img" src="assets/pasta.png" alt="Truffle Pasta">
+          <div class="preview-body">
+            <div class="preview-cat">Mains</div>
+            <div class="preview-name">Black Truffle Tagliatelle</div>
+            <div class="preview-price">₹3,199</div>
+          </div>
+        </div>
+        <div class="preview-card" onclick="location.href='menu.html?table=1'" data-animate data-delay="0.2s">
+          <img class="preview-img" src="assets/dessert.png" alt="Chocolate Fondant">
+          <div class="preview-body">
+            <div class="preview-cat">Desserts</div>
+            <div class="preview-name">Dark Chocolate Fondant</div>
+            <div class="preview-price">₹1,349</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ GALLERY ═══ -->
+  <section class="section" id="gallery" style="padding-top:0">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:48px" data-animate>
+        <span class="section-label">Atmosphere</span>
+        <div class="gold-divider"></div>
+        <h2 style="margin-top:16px">Inside Velvet Table</h2>
+      </div>
+      <div class="gallery-grid" data-animate>
+        <div class="gallery-item">
+          <img class="gallery-img" src="assets/hero.png" alt="Restaurant interior">
+        </div>
+        <div class="gallery-item">
+          <img class="gallery-img" src="assets/food-spread.png" alt="Food spread">
+        </div>
+        <div class="gallery-item">
+          <img class="gallery-img" src="assets/cocktail.png" alt="Cocktails">
+        </div>
+        <div class="gallery-item">
+          <img class="gallery-img" src="assets/steak.png" alt="Signature steak">
+        </div>
+        <div class="gallery-item">
+          <img class="gallery-img" src="assets/dessert.png" alt="Desserts">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ CONTACT & RESERVATION ═══ -->
+  <section class="section" id="contact" style="background:var(--bg-secondary);border-top:1px solid var(--border)">
+    <div class="container">
+      <div class="text-center" style="margin-bottom:60px" data-animate>
+        <span class="section-label">Visit Us</span>
+        <div class="gold-divider"></div>
+        <h2 style="margin-top:16px">Reserve Your Table</h2>
+      </div>
+      <div class="contact-grid">
+        <div data-animate>
+          <div class="contact-detail">
+            <div class="contact-icon">📍</div>
+            <div>
+              <h4>Address</h4>
+              <p>12 Golden Lane, Mayfair<br>London, W1K 4BG</p>
+            </div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-icon">🕐</div>
+            <div>
+              <h4>Opening Hours</h4>
+              <p>Mon–Fri: 12:00 PM – 11:00 PM<br>Sat–Sun: 11:00 AM – 12:00 AM</p>
+            </div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-icon">📞</div>
+            <div>
+              <h4>Phone</h4>
+              <p>+44 20 7946 0123</p>
+            </div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-icon">✉️</div>
+            <div>
+              <h4>Email</h4>
+              <p>reservations@velvettable.com</p>
+            </div>
+          </div>
+        </div>
+        <div data-animate data-delay="0.2s">
+          <div class="reservation-card">
+            <h3 style="font-size:1.4rem;margin-bottom:4px">Make a Reservation</h3>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:24px">Or walk in and scan any table QR to order.</p>
+            <form id="reservation-form" style="display:flex;flex-direction:column;gap:16px">
+              <div class="grid-2" style="gap:16px">
+                <div class="form-group">
+                  <label class="form-label">First Name</label>
+                  <input type="text" class="form-input" placeholder="James" id="res-fname">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Last Name</label>
+                  <input type="text" class="form-input" placeholder="Smith" id="res-lname">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-input" placeholder="james@example.com" id="res-email">
+              </div>
+              <div class="grid-2" style="gap:16px">
+                <div class="form-group">
+                  <label class="form-label">Date</label>
+                  <input type="date" class="form-input" id="res-date">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Guests</label>
+                  <select class="form-input" id="res-guests">
+                    <option value="">Select</option>
+                    <option>1</option><option>2</option><option>3</option>
+                    <option>4</option><option>5</option><option>6+</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Special Requests</label>
+                <textarea class="form-input" rows="3" placeholder="Dietary requirements, celebrations..." id="res-notes" style="resize:none"></textarea>
+              </div>
+              <button type="submit" class="btn btn-gold" style="justify-content:center">
+                Request Reservation
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold)">🕯 Velvet Table</div>
+          <p>An intimate fine dining experience where modern technology meets classical cuisine.</p>
+          <div class="social-links" style="margin-top:20px">
+            <a href="#" class="social-link" aria-label="Instagram">📷</a>
+            <a href="#" class="social-link" aria-label="Facebook">📘</a>
+            <a href="#" class="social-link" aria-label="Twitter">🐦</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>Explore</h5>
+          <a href="#about">About Us</a>
+          <a href="menu.html?table=1">Our Menu</a>
+          <a href="#gallery">Gallery</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h5>Order</h5>
+          <a href="menu.html?table=1">Browse Menu</a>
+          <a href="order-status.html">Track Order</a>
+          <a href="admin.html">Admin Panel</a>
+        </div>
+        <div class="footer-col">
+          <h5>Hours</h5>
+          <a href="#">Mon–Fri: 12–11 PM</a>
+          <a href="#">Sat–Sun: 11–12 AM</a>
+          <a href="#">Happy Hour: 4–6 PM</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 Velvet Table. Crafted with ❤️ for fine dining.</p>
+        <p>Privacy Policy · Terms of Service</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container"></div>
+
+  <script src="js/cart.js"></script>
+  <script>
+    // Reservation form
+    document.getElementById('reservation-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('res-fname').value;
+      if (!name) { showToast('Please fill in your name', 'error'); return; }
+      showToast(`✨ Reservation requested for ${name}! We'll confirm via email.`, 'success', 5000);
+      e.target.reset();
+    });
+    // Set min date to today
+    const dateInput = document.getElementById('res-date');
+    if (dateInput) dateInput.min = new Date().toISOString().split('T')[0];
+  </script>
+</body>
+</html>

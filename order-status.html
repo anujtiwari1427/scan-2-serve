@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Track your order status at Velvet Table in real-time.">
+  <title>Order Status — Velvet Table</title>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    body { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg-primary); }
+    .status-page { flex: 1; display: flex; align-items: center; justify-content: center; padding: 60px 24px; }
+    .status-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius-xl);
+      padding: 48px;
+      max-width: 560px; width: 100%;
+      box-shadow: var(--shadow-gold), var(--shadow);
+      text-align: center;
+    }
+    .status-restaurant { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--gold); margin-bottom: 8px; }
+    .order-id-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 20px; border-radius: 100px;
+      background: rgba(212,175,55,0.08); border: 1px solid var(--border-gold);
+      font-size: 0.88rem; font-weight: 600; color: var(--gold); margin-bottom: 32px;
+    }
+    .table-info { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
+    .customer-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 32px; }
+
+    /* ── Status Progress ── */
+    .progress-track {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      position: relative; margin-bottom: 48px;
+    }
+    .progress-track::before {
+      content: ''; position: absolute;
+      top: 22px; left: 22px; right: 22px; height: 2px;
+      background: var(--border); z-index: 0;
+    }
+    .progress-fill {
+      content: ''; position: absolute;
+      top: 22px; left: 22px; height: 2px;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+      z-index: 1; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .status-step { display: flex; flex-direction: column; align-items: center; gap: 10px; flex: 1; position: relative; z-index: 2; }
+    .step-circle {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--bg-elevated); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .step-circle.done { background: rgba(212,175,55,0.15); border-color: var(--gold); }
+    .step-circle.active {
+      background: var(--gold); border-color: var(--gold);
+      box-shadow: 0 0 20px rgba(212,175,55,0.4);
+      animation: pulse 2s infinite;
+    }
+    .step-label { font-size: 0.72rem; font-weight: 600; color: var(--text-faint); text-align: center; letter-spacing: 0.04em; line-height: 1.3; }
+    .step-label.done, .step-label.active { color: var(--text-primary); }
+
+    /* ── Ordered Items ── */
+    .ordered-items { text-align: left; }
+    .ordered-items h4 { font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; }
+    .ordered-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .ordered-item:last-child { border-bottom: none; }
+    .ordered-item .item-name { color: var(--text-muted); }
+    .ordered-item .item-total { color: var(--gold); font-family: 'Playfair Display', serif; }
+
+    /* ── Total ── */
+    .order-total-row { display: flex; justify-content: space-between; margin-top: 16px; padding: 16px; background: var(--bg-elevated); border-radius: var(--radius); }
+    .order-total-val { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--gold); font-weight: 700; }
+
+    /* ── Estimated time ── */
+    .eta-card {
+      background: rgba(212,175,55,0.06); border: 1px solid var(--border-gold);
+      border-radius: var(--radius); padding: 16px 20px; margin: 24px 0;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .eta-icon { font-size: 1.5rem; }
+    .eta-label { font-size: 0.78rem; color: var(--text-muted); }
+    .eta-time { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+
+    /* ── Not Found ── */
+    .not-found { text-align: center; padding: 60px 0; }
+    .not-found .icon { font-size: 3rem; margin-bottom: 16px; }
+
+    @media (max-width: 480px) {
+      .status-card { padding: 28px 20px; }
+      .step-label { font-size: 0.65rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─ Minimal Navbar ─ -->
+  <nav class="navbar scrolled" style="position:relative;padding:14px 0">
+    <div class="container flex-between">
+      <a href="index.html" class="navbar-logo"><span>🕯</span> Velvet Table</a>
+      <a href="menu.html?table=1" class="btn btn-ghost btn-sm">🍽 Order More</a>
+    </div>
+  </nav>
+
+  <div class="status-page">
+    <!-- Not found state -->
+    <div class="status-card" id="not-found-state" style="display:none">
+      <div class="not-found">
+        <div class="icon">🔍</div>
+        <h2 style="font-size:1.5rem;margin-bottom:8px">Order Not Found</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:28px">
+          We couldn't find that order. Please check your order ID.
+        </p>
+        <a href="menu.html?table=1" class="btn btn-gold">Browse Menu</a>
+      </div>
+    </div>
+
+    <!-- Order status state -->
+    <div class="status-card" id="order-status-state" style="display:none">
+      <div class="status-restaurant">🕯 Velvet Table</div>
+      <div class="order-id-badge" id="display-order-id">ORD-XXXXXX</div>
+      <div class="table-info" id="display-table">Table —</div>
+      <div class="customer-name" id="display-customer">—</div>
+
+      <!-- Progress -->
+      <div class="progress-track" id="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0"></div>
+        <div class="status-step">
+          <div class="step-circle" id="step-pending"><span>📋</span></div>
+          <div class="step-label" id="label-pending">Order<br>Received</div>
+        </div>
+        <div class="status-step">
+          <div class="step-circle" id="step-preparing"><span>👨‍🍳</span></div>
+          <div class="step-label" id="label-preparing">Being<br>Prepared</div>
+        </div>
+        <div class="status-step">
+          <div class="step-circle" id="step-ready"><span>✅</span></div>
+          <div class="step-label" id="label-ready">Ready to<br>Serve</div>
+        </div>
+        <div class="status-step">
+          <div class="step-circle" id="step-served"><span>🍽</span></div>
+          <div class="step-label" id="label-served">Enjoy<br>Your Meal</div>
+        </div>
+      </div>
+
+      <!-- ETA -->
+      <div class="eta-card" id="eta-card">
+        <span class="eta-icon">⏱</span>
+        <div>
+          <div class="eta-label">Estimated Wait Time</div>
+          <div class="eta-time" id="eta-display">20–30 minutes</div>
+        </div>
+      </div>
+
+      <!-- Ordered items -->
+      <div class="ordered-items" id="items-section">
+        <h4>Your Order</h4>
+        <div id="ordered-items-list"></div>
+        <div class="order-total-row">
+          <span style="font-weight:600;font-size:0.9rem">Total Paid</span>
+          <span class="order-total-val" id="display-total">₹0.00</span>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div id="notes-section" style="display:none;text-align:left;margin-top:20px">
+        <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;">
+          <div style="font-size:0.75rem;font-weight:600;color:var(--text-muted);margin-bottom:4px">📝 Special Instructions</div>
+          <div style="font-size:0.85rem" id="display-notes"></div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;gap:12px;margin-top:28px;flex-wrap:wrap">
+        <a href="menu.html" id="order-more-link" class="btn btn-outline" style="flex:1;justify-content:center">
+          + Order More
+        </a>
+        <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="location.reload()">
+          🔄 Refresh Status
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div id="loading-state" style="text-align:center;padding:60px">
+      <div class="spinner" style="margin:0 auto 20px"></div>
+      <p style="color:var(--text-muted);font-size:0.9rem">Loading your order...</p>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+
+  <script src="js/cart.js"></script>
+  <script src="js/orders.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('order');
+    const STATUS_PROGRESS = { pending: 0, preparing: 1, ready: 2, served: 3 };
+    const ETA = {
+      pending:   '25–35 minutes',
+      preparing: '15–20 minutes',
+      ready:     'Being brought to you!',
+      served:    'Enjoy your meal! 🍽'
+    };
+
+    function init() {
+      Orders.load();
+      if (!orderId) {
+        show('not-found-state');
+        return;
+      }
+      const order = Orders.getById(orderId);
+      if (!order) {
+        show('not-found-state');
+        return;
+      }
+      renderOrder(order);
+    }
+
+    function show(id) {
+      ['loading-state','not-found-state','order-status-state'].forEach(s => {
+        document.getElementById(s).style.display = s === id ? (id === 'order-status-state' ? 'block' : 'flex') : 'none';
+      });
+      if (id === 'order-status-state') document.getElementById(id).style.display = 'block';
+    }
+
+    function renderOrder(order) {
+      show('order-status-state');
+      document.getElementById('display-order-id').textContent = order.id;
+      document.getElementById('display-table').textContent = `🪑 Table ${order.table}`;
+      document.getElementById('display-customer').textContent = `Hello, ${order.customer} 👋`;
+      document.getElementById('display-total').textContent = '₹' + order.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('eta-display').textContent = ETA[order.status] || '20–30 minutes';
+      document.getElementById('order-more-link').href = `menu.html?table=${order.table}`;
+
+      // Progress
+      const step = STATUS_PROGRESS[order.status];
+      const steps = ['pending','preparing','ready','served'];
+      const widths = ['0%', '33%', '66%', '100%'];
+      document.getElementById('progress-fill').style.width = widths[step];
+
+      steps.forEach((s, i) => {
+        const circle = document.getElementById('step-' + s);
+        const label = document.getElementById('label-' + s);
+        if (i < step) { circle.className = 'step-circle done'; label.className = 'step-label done'; }
+        else if (i === step) { circle.className = 'step-circle active'; label.className = 'step-label active'; }
+        else { circle.className = 'step-circle'; label.className = 'step-label'; }
+      });
+
+      // Hide ETA if served
+      if (order.status === 'served') {
+        document.getElementById('eta-card').style.background = 'rgba(76,175,130,0.06)';
+        document.getElementById('eta-card').style.borderColor = 'rgba(76,175,130,0.3)';
+      }
+
+      // Items
+      document.getElementById('ordered-items-list').innerHTML = order.items.map(i => `
+        <div class="ordered-item">
+          <span class="item-name">${i.qty}× ${i.name}</span>
+          <span class="item-total">₹${(i.price * i.qty).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+        </div>
+      `).join('');
+
+      // Notes
+      if (order.notes) {
+        document.getElementById('notes-section').style.display = 'block';
+        document.getElementById('display-notes').textContent = order.notes;
+      }
+
+      // Auto refresh if not served
+      if (order.status !== 'served') {
+        setTimeout(() => { Orders.load(); renderOrder(Orders.getById(orderId) || order); }, 15000);
+      }
+    }
+
+    // Start
+    setTimeout(() => init(), 600);
+  </script>
+</body>
+</html>
