@@ -1,284 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Scan2Serve Admin Dashboard — Manage orders, generate QR codes, and track table status.">
+  <meta name="description"
+    content="Scan2Serve Admin Dashboard — Manage orders, generate QR codes, and track table status.">
   <title>Admin Dashboard — Scan2Serve</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/admin.css">
   <!-- QR Code Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
+
 <body>
 
-<!-- ═══ LOGIN SCREEN ═══ -->
-<div id="admin-login-screen" class="admin-login-screen">
-  <div class="admin-login-box">
-    <div class="admin-login-logo">🕯</div>
-    <div class="admin-login-title">Admin Access</div>
-    <div id="login-error" class="admin-login-error">Invalid ID or Password</div>
-    <div class="form-group" style="text-align:left">
-      <label class="form-label">Admin ID</label>
-      <input type="text" id="login-id" class="form-input" placeholder="Enter ID">
+  <!-- ═══ LOGIN SCREEN ═══ -->
+  <div id="admin-login-screen" class="admin-login-screen">
+    <div class="admin-login-box">
+      <div class="admin-login-logo">🕯</div>
+      <div class="admin-login-title">Admin Access</div>
+      <div id="login-error" class="admin-login-error">Invalid ID or Password</div>
+      <div class="form-group" style="text-align:left">
+        <label class="form-label">Admin ID</label>
+        <input type="text" id="login-id" class="form-input" placeholder="Enter ID">
+      </div>
+      <div class="form-group" style="text-align:left;margin-top:16px;margin-bottom:24px">
+        <label class="form-label">Password</label>
+        <input type="password" id="login-pass" class="form-input" placeholder="Enter password">
+      </div>
+      <button class="btn btn-gold w-full" style="justify-content:center" onclick="handleLogin()">Secure Login</button>
     </div>
-    <div class="form-group" style="text-align:left;margin-top:16px;margin-bottom:24px">
-      <label class="form-label">Password</label>
-      <input type="password" id="login-pass" class="form-input" placeholder="Enter password">
-    </div>
-    <button class="btn btn-gold w-full" style="justify-content:center" onclick="handleLogin()">Secure Login</button>
   </div>
-</div>
 
-<div class="admin-layout" id="admin-layout" style="display:none">
+  <div class="admin-layout" id="admin-layout" style="display:none">
 
-  <!-- ═══ SIDEBAR ═══ -->
-  <aside class="admin-sidebar" id="admin-sidebar">
-    <div class="sidebar-logo">
-      <div>
-        <div class="logo-text">🕯 Scan2Serve</div>
-        <div class="logo-sub">Kitchen Dashboard</div>
-      </div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="sidebar-section-label">Overview</div>
-      <a href="#" class="sidebar-link active" data-page="dashboard">
-        <span class="link-icon">📊</span> Dashboard
-      </a>
-
-      <div class="sidebar-section-label" style="margin-top:8px">Operations</div>
-      <a href="#" class="sidebar-link" data-page="orders">
-        <span class="link-icon">🧾</span> Live Orders
-        <span class="link-badge" id="orders-badge" style="display:none">0</span>
-      </a>
-      <a href="#" class="sidebar-link" data-page="tables">
-        <span class="link-icon">🪑</span> Tables
-      </a>
-
-      <div class="sidebar-section-label" style="margin-top:8px">Management</div>
-      <a href="#" class="sidebar-link" data-page="qr">
-        <span class="link-icon">📱</span> QR Codes
-      </a>
-      <a href="#" class="sidebar-link" data-page="menu">
-        <span class="link-icon">📋</span> Menu Manager
-      </a>
-
-      <div class="sidebar-section-label" style="margin-top:8px">Navigate</div>
-      <a href="index.html" class="sidebar-link">
-        <span class="link-icon">🏠</span> Homepage
-      </a>
-      <a href="menu.html?table=1" class="sidebar-link">
-        <span class="link-icon">🍽</span> Customer Menu
-      </a>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="admin-user">
-        <div class="admin-avatar">A</div>
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-logo">
         <div>
-          <div class="admin-name">Admin</div>
-          <div class="admin-role">Kitchen Manager</div>
+          <div class="logo-text">🕯 Scan2Serve</div>
+          <div class="logo-sub">Kitchen Dashboard</div>
         </div>
       </div>
-    </div>
-  </aside>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-label">Overview</div>
+        <a href="#" class="sidebar-link active" data-page="dashboard">
+          <span class="link-icon">📊</span> Dashboard
+        </a>
 
-  <!-- ═══ MAIN CONTENT ═══ -->
-  <main class="admin-main">
+        <div class="sidebar-section-label" style="margin-top:8px">Operations</div>
+        <a href="#" class="sidebar-link" data-page="orders">
+          <span class="link-icon">🧾</span> Live Orders
+          <span class="link-badge" id="orders-badge" style="display:none">0</span>
+        </a>
+        <a href="#" class="sidebar-link" data-page="tables">
+          <span class="link-icon">🪑</span> Tables
+        </a>
 
-    <!-- Topbar -->
-    <div class="admin-topbar">
-      <div class="admin-topbar-title">
-        <h2 id="topbar-title">Dashboard</h2>
-        <p id="topbar-sub">Overview of today's operations</p>
-      </div>
-      <div class="topbar-actions">
-        <div class="topbar-badge">
-          <span class="live-dot"></span> Live Updates
-        </div>
-        <span id="topbar-time" style="font-size:0.8rem;color:var(--text-muted)"></span>
-        <a href="menu.html?table=1" class="btn btn-outline btn-sm">🍽 View Menu</a>
-      </div>
-    </div>
+        <div class="sidebar-section-label" style="margin-top:8px">Management</div>
+        <a href="#" class="sidebar-link" data-page="qr">
+          <span class="link-icon">📱</span> QR Codes
+        </a>
+        <a href="#" class="sidebar-link" data-page="menu">
+          <span class="link-icon">📋</span> Menu Manager
+        </a>
 
-    <!-- ── PAGE: DASHBOARD ── -->
-    <div class="admin-page active" id="page-dashboard">
-
-      <!-- Stats -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon gold">📦</div>
-            <span class="stat-change up">+12%</span>
+        <div class="sidebar-section-label" style="margin-top:8px">Navigate</div>
+        <a href="index.html" class="sidebar-link">
+          <span class="link-icon">🏠</span> Homepage
+        </a>
+        <a href="menu.html?table=1" class="sidebar-link">
+          <span class="link-icon">🍽</span> Customer Menu
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="admin-user">
+          <div class="admin-avatar">A</div>
+          <div>
+            <div class="admin-name">Admin</div>
+            <div class="admin-role">Kitchen Manager</div>
           </div>
-          <div class="stat-value" id="stat-orders">—</div>
-          <div class="stat-label">Today's Orders</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon success">💰</div>
-            <span class="stat-change up">+8%</span>
-          </div>
-          <div class="stat-value" id="stat-revenue">—</div>
-          <div class="stat-label">Today's Revenue</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon warning">👨‍🍳</div>
-            <span class="stat-change up" id="stat-change-active">Live</span>
-          </div>
-          <div class="stat-value" id="stat-active">—</div>
-          <div class="stat-label">Preparing Now</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-header">
-            <div class="stat-icon danger">⏳</div>
-            <span class="stat-change" id="stat-change-pending" style="background:rgba(232,168,56,0.12);color:var(--warning)">Urgent</span>
-          </div>
-          <div class="stat-value" id="stat-pending">—</div>
-          <div class="stat-label">Pending Orders</div>
         </div>
       </div>
+    </aside>
 
-      <!-- Dashboard Grid -->
-      <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px">
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main class="admin-main">
 
-        <!-- Revenue Chart -->
-        <div class="card" style="padding:28px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-            <h4>Weekly Revenue</h4>
-            <span class="badge badge-gold">This Week</span>
+      <!-- Topbar -->
+      <div class="admin-topbar">
+        <div class="admin-topbar-title">
+          <h2 id="topbar-title">Dashboard</h2>
+          <p id="topbar-sub">Overview of today's operations</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="topbar-badge">
+            <span class="live-dot"></span> Live Updates
           </div>
-          <div class="chart-container">
-            <div class="bar-chart" id="revenue-chart">
-              <!-- populated by JS -->
+          <span id="topbar-time" style="font-size:0.8rem;color:var(--text-muted)"></span>
+          <a href="menu.html?table=1" class="btn btn-outline btn-sm">🍽 View Menu</a>
+        </div>
+      </div>
+
+      <!-- ── PAGE: DASHBOARD ── -->
+      <div class="admin-page active" id="page-dashboard">
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon gold">📦</div>
+              <span class="stat-change up">+12%</span>
+            </div>
+            <div class="stat-value" id="stat-orders">—</div>
+            <div class="stat-label">Today's Orders</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon success">💰</div>
+              <span class="stat-change up">+8%</span>
+            </div>
+            <div class="stat-value" id="stat-revenue">—</div>
+            <div class="stat-label">Today's Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon warning">👨‍🍳</div>
+              <span class="stat-change up" id="stat-change-active">Live</span>
+            </div>
+            <div class="stat-value" id="stat-active">—</div>
+            <div class="stat-label">Preparing Now</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon danger">⏳</div>
+              <span class="stat-change" id="stat-change-pending"
+                style="background:rgba(232,168,56,0.12);color:var(--warning)">Urgent</span>
+            </div>
+            <div class="stat-value" id="stat-pending">—</div>
+            <div class="stat-label">Pending Orders</div>
+          </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px">
+
+          <!-- Revenue Chart -->
+          <div class="card" style="padding:28px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+              <h4>Weekly Revenue</h4>
+              <span class="badge badge-gold">This Week</span>
+            </div>
+            <div class="chart-container">
+              <div class="bar-chart" id="revenue-chart">
+                <!-- populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Orders -->
+          <div class="card" style="padding:28px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+              <h4>Recent Orders</h4>
+              <button class="btn btn-ghost btn-sm"
+                onclick="showPage('orders');document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));document.querySelector('[data-page=orders]').classList.add('active')">View
+                All</button>
+            </div>
+            <div id="recent-orders-list"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── PAGE: ORDERS ── -->
+      <div class="admin-page" id="page-orders">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+          <div>
+            <h3 style="font-size:1.2rem">Live Order Queue</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px">Refreshes automatically every 10 seconds
+            </p>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-ghost btn-sm" onclick="Orders.load();renderOrders()">🔄 Refresh</button>
+            <button class="btn btn-ghost btn-sm"
+              onclick="if(confirm('Clear all served orders?')){Orders.list=Orders.list.filter(o=>o.status!=='served');Orders.save();renderOrders()}">🧹
+              Clear Served</button>
+          </div>
+        </div>
+        <!-- Status Filter -->
+        <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm order-filter active" data-filter="all"
+            onclick="filterOrders(this,'all')">All</button>
+          <button class="btn btn-ghost btn-sm order-filter" data-filter="pending"
+            onclick="filterOrders(this,'pending')">⏳ Pending</button>
+          <button class="btn btn-ghost btn-sm order-filter" data-filter="preparing"
+            onclick="filterOrders(this,'preparing')">👨‍🍳 Preparing</button>
+          <button class="btn btn-ghost btn-sm order-filter" data-filter="ready" onclick="filterOrders(this,'ready')">✅
+            Ready</button>
+          <button class="btn btn-ghost btn-sm order-filter" data-filter="served"
+            onclick="filterOrders(this,'served')">🍽 Served</button>
+        </div>
+        <div class="orders-grid" id="orders-container"></div>
+      </div>
+
+      <!-- ── PAGE: QR CODES ── -->
+      <div class="admin-page" id="page-qr">
+        <div style="margin-bottom:28px">
+          <div
+            style="background:rgba(212,175,55,0.08);border:1px solid var(--border-gold);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:flex-start;gap:12px;margin-bottom:24px">
+            <span style="font-size:1.2rem">💡</span>
+            <div>
+              <div style="font-weight:600;font-size:0.88rem;margin-bottom:4px">How to use QR codes</div>
+              <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6">Print each QR code and place it on the
+                corresponding table. When customers scan it, they'll be taken directly to the menu pre-loaded with their
+                table number.</p>
             </div>
           </div>
         </div>
-
-        <!-- Recent Orders -->
-        <div class="card" style="padding:28px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-            <h4>Recent Orders</h4>
-            <button class="btn btn-ghost btn-sm" onclick="showPage('orders');document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('active'));document.querySelector('[data-page=orders]').classList.add('active')">View All</button>
-          </div>
-          <div id="recent-orders-list"></div>
-        </div>
+        <div class="qr-generator-grid" id="qr-grid"></div>
       </div>
 
-    </div>
-
-    <!-- ── PAGE: ORDERS ── -->
-    <div class="admin-page" id="page-orders">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
-        <div>
-          <h3 style="font-size:1.2rem">Live Order Queue</h3>
-          <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px">Refreshes automatically every 10 seconds</p>
-        </div>
-        <div style="display:flex;gap:10px">
-          <button class="btn btn-ghost btn-sm" onclick="Orders.load();renderOrders()">🔄 Refresh</button>
-          <button class="btn btn-ghost btn-sm" onclick="if(confirm('Clear all served orders?')){Orders.list=Orders.list.filter(o=>o.status!=='served');Orders.save();renderOrders()}">🧹 Clear Served</button>
-        </div>
-      </div>
-      <!-- Status Filter -->
-      <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm order-filter active" data-filter="all" onclick="filterOrders(this,'all')">All</button>
-        <button class="btn btn-ghost btn-sm order-filter" data-filter="pending" onclick="filterOrders(this,'pending')">⏳ Pending</button>
-        <button class="btn btn-ghost btn-sm order-filter" data-filter="preparing" onclick="filterOrders(this,'preparing')">👨‍🍳 Preparing</button>
-        <button class="btn btn-ghost btn-sm order-filter" data-filter="ready" onclick="filterOrders(this,'ready')">✅ Ready</button>
-        <button class="btn btn-ghost btn-sm order-filter" data-filter="served" onclick="filterOrders(this,'served')">🍽 Served</button>
-      </div>
-      <div class="orders-grid" id="orders-container"></div>
-    </div>
-
-    <!-- ── PAGE: QR CODES ── -->
-    <div class="admin-page" id="page-qr">
-      <div style="margin-bottom:28px">
-        <div style="background:rgba(212,175,55,0.08);border:1px solid var(--border-gold);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:flex-start;gap:12px;margin-bottom:24px">
-          <span style="font-size:1.2rem">💡</span>
+      <!-- ── PAGE: MENU MANAGER ── -->
+      <div class="admin-page" id="page-menu">
+        <div class="menu-manager-header">
           <div>
-            <div style="font-weight:600;font-size:0.88rem;margin-bottom:4px">How to use QR codes</div>
-            <p style="font-size:0.8rem;color:var(--text-muted);line-height:1.6">Print each QR code and place it on the corresponding table. When customers scan it, they'll be taken directly to the menu pre-loaded with their table number.</p>
+            <h3 style="font-size:1.2rem">Menu Items</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px" id="menu-item-count"></p>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="showToast('Add item form — coming soon!','info')">
+            + Add New Item
+          </button>
+        </div>
+        <!-- Category filter -->
+        <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap" id="menu-cat-filter">
+          <button class="btn btn-ghost btn-sm" onclick="filterMenuCat(this,'all')">All</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterMenuCat(this,'starters')">🥗 Starters</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterMenuCat(this,'mains')">🥩 Mains</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterMenuCat(this,'desserts')">🍮 Desserts</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterMenuCat(this,'drinks')">🥂 Drinks</button>
+        </div>
+        <div class="admin-items-grid" id="admin-menu-grid"></div>
+      </div>
+
+      <!-- ── PAGE: TABLES ── -->
+      <div class="admin-page" id="page-tables">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
+          <div>
+            <h3 style="font-size:1.2rem">Table Overview</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px">Click a table to cycle its status</p>
+          </div>
+          <div style="display:flex;gap:16px">
+            <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span
+                style="width:10px;height:10px;border-radius:50%;background:var(--success);display:inline-block"></span>Available
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span
+                style="width:10px;height:10px;border-radius:50%;background:var(--danger);display:inline-block"></span>Occupied
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span
+                style="width:10px;height:10px;border-radius:50%;background:var(--gold);display:inline-block"></span>Reserved
+            </div>
           </div>
         </div>
+        <div class="table-status-grid" id="tables-grid"></div>
       </div>
-      <div class="qr-generator-grid" id="qr-grid"></div>
-    </div>
 
-    <!-- ── PAGE: MENU MANAGER ── -->
-    <div class="admin-page" id="page-menu">
-      <div class="menu-manager-header">
-        <div>
-          <h3 style="font-size:1.2rem">Menu Items</h3>
-          <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px" id="menu-item-count"></p>
-        </div>
-        <button class="btn btn-gold btn-sm" onclick="showToast('Add item form — coming soon!','info')">
-          + Add New Item
-        </button>
-      </div>
-      <!-- Category filter -->
-      <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap" id="menu-cat-filter">
-        <button class="btn btn-ghost btn-sm" onclick="filterMenuCat(this,'all')">All</button>
-        <button class="btn btn-ghost btn-sm" onclick="filterMenuCat(this,'starters')">🥗 Starters</button>
-        <button class="btn btn-ghost btn-sm" onclick="filterMenuCat(this,'mains')">🥩 Mains</button>
-        <button class="btn btn-ghost btn-sm" onclick="filterMenuCat(this,'desserts')">🍮 Desserts</button>
-        <button class="btn btn-ghost btn-sm" onclick="filterMenuCat(this,'drinks')">🥂 Drinks</button>
-      </div>
-      <div class="admin-items-grid" id="admin-menu-grid"></div>
-    </div>
+    </main>
+  </div>
 
-    <!-- ── PAGE: TABLES ── -->
-    <div class="admin-page" id="page-tables">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
-        <div>
-          <h3 style="font-size:1.2rem">Table Overview</h3>
-          <p style="font-size:0.82rem;color:var(--text-muted);margin-top:4px">Click a table to cycle its status</p>
-        </div>
-        <div style="display:flex;gap:16px">
-          <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span style="width:10px;height:10px;border-radius:50%;background:var(--success);display:inline-block"></span>Available</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span style="width:10px;height:10px;border-radius:50%;background:var(--danger);display:inline-block"></span>Occupied</div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem"><span style="width:10px;height:10px;border-radius:50%;background:var(--gold);display:inline-block"></span>Reserved</div>
-        </div>
-      </div>
-      <div class="table-status-grid" id="tables-grid"></div>
-    </div>
+  <div class="toast-container"></div>
 
-  </main>
-</div>
+  <script src="js/data.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/orders.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    // Live clock
+    function updateClock() {
+      const el = document.getElementById('topbar-time');
+      if (el) el.textContent = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
 
-<div class="toast-container"></div>
-
-<script src="js/data.js"></script>
-<script src="js/cart.js"></script>
-<script src="js/orders.js"></script>
-<script src="js/admin.js"></script>
-<script>
-  // Live clock
-  function updateClock() {
-    const el = document.getElementById('topbar-time');
-    if (el) el.textContent = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  }
-  updateClock();
-  setInterval(updateClock, 30000);
-
-  // Order status filter (uses local state)
-  let activeFilter = 'all';
-  function filterOrders(btn, filter) {
-    activeFilter = filter;
-    document.querySelectorAll('.order-filter').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    Orders.load();
-    const container = document.getElementById('orders-container');
-    if (!container) return;
-    const items = filter === 'all' ? Orders.list : Orders.list.filter(o => o.status === filter);
-    if (items.length === 0) {
-      container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 24px;color:var(--text-faint)">
+    // Order status filter (uses local state)
+    let activeFilter = 'all';
+    function filterOrders(btn, filter) {
+      activeFilter = filter;
+      document.querySelectorAll('.order-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      Orders.load();
+      const container = document.getElementById('orders-container');
+      if (!container) return;
+      const items = filter === 'all' ? Orders.list : Orders.list.filter(o => o.status === filter);
+      if (items.length === 0) {
+        container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 24px;color:var(--text-faint)">
         <div style="font-size:3rem;margin-bottom:16px">📭</div>
         <p>No ${filter === 'all' ? '' : filter} orders</p>
       </div>`;
-      return;
+        return;
+      }
+      container.innerHTML = items.map(o => renderOrderCard(o)).join('');
     }
-    container.innerHTML = items.map(o => renderOrderCard(o)).join('');
-  }
-</script>
+  </script>
 </body>
+
 </html>

@@ -29,7 +29,7 @@ function checkAuth() {
 async function handleLogin() {
   const id = document.getElementById('login-id').value.trim();
   const pass = document.getElementById('login-pass').value.trim();
-  
+
   // SHA-256 hashes for ID "admin" and Password "admin123"
   const validIdHash = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918';
   const validPassHash = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
@@ -109,7 +109,7 @@ function renderDashboard() {
   Orders.load();
   const stats = Orders.getStats();
   setInner('stat-orders', stats.totalOrders);
-  setInner('stat-revenue', `₹${stats.revenue.toLocaleString('en-IN', {maximumFractionDigits:0})}`);
+  setInner('stat-revenue', `₹${stats.revenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`);
   setInner('stat-active', stats.activeOrders);
   setInner('stat-pending', stats.pendingOrders);
   renderRevenueChart();
@@ -123,7 +123,7 @@ function renderRevenueChart() {
   if (!container) return;
   container.innerHTML = data.map(d => `
     <div class="bar-col">
-      <div class="bar" style="height:${Math.max(4, (d.revenue/max)*160)}px" data-value="₹${d.revenue.toLocaleString('en-IN',{maximumFractionDigits:0})}"></div>
+      <div class="bar" style="height:${Math.max(4, (d.revenue / max) * 160)}px" data-value="₹${d.revenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}"></div>
       <span class="bar-label">${d.day}</span>
     </div>
   `).join('');
@@ -142,7 +142,7 @@ function renderRecentOrders() {
         <div style="font-size:0.78rem;color:var(--text-muted)">Table ${o.table} · ${Orders.getTimeAgo(o.createdAt)}</div>
       </div>
       <div style="text-align:right">
-        <div style="font-size:0.88rem;color:var(--gold);font-family:'Playfair Display',serif">₹${o.total.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+        <div style="font-size:0.88rem;color:var(--gold);font-family:'Playfair Display',serif">₹${o.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
         <span class="badge badge-${STATUS_LABELS[o.status].color}" style="font-size:0.68rem">${STATUS_LABELS[o.status].label}</span>
       </div>
     </div>
@@ -188,12 +188,12 @@ function renderOrderCard(o) {
       </div>
       <div class="order-card-body">
         <div class="order-card-items">
-          ${o.items.map(i => `<div class="order-card-item"><span>${i.qty}× ${i.name}</span><span>₹${(i.price*i.qty).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</span></div>`).join('')}
+          ${o.items.map(i => `<div class="order-card-item"><span>${i.qty}× ${i.name}</span><span>₹${(i.price * i.qty).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>`).join('')}
         </div>
         ${o.notes ? `<div class="order-notes">📝 ${o.notes}</div>` : ''}
         <div style="display:flex;justify-content:space-between;font-size:0.88rem;font-weight:600">
           <span>Total</span>
-          <span style="color:var(--gold);font-family:'Playfair Display',serif">₹${o.total.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}</span>
+          <span style="color:var(--gold);font-family:'Playfair Display',serif">₹${o.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       </div>
       <div class="order-card-footer">
@@ -223,7 +223,7 @@ function cancelOrder(id) {
 function renderQRPage() {
   const container = document.getElementById('qr-grid');
   if (!container) return;
-  const tables = Array.from({length: 20}, (_, i) => i + 1);
+  const tables = Array.from({ length: 20 }, (_, i) => i + 1);
   container.innerHTML = tables.map(t => `
     <div class="qr-table-card">
       <div class="qr-table-name">Table ${t}</div>
@@ -247,7 +247,7 @@ function renderQRPage() {
         colorDark: '#000000', colorLight: '#FFFFFF',
         correctLevel: QRCode.CorrectLevel.M
       });
-    } catch(e) { wrap.innerHTML = `<div style="color:#999;font-size:0.7rem;text-align:center">QR ${t}</div>`; }
+    } catch (e) { wrap.innerHTML = `<div style="color:#999;font-size:0.7rem;text-align:center">QR ${t}</div>`; }
   });
 }
 
@@ -311,8 +311,8 @@ function editItem(id) {
 function renderTables() {
   const container = document.getElementById('tables-grid');
   if (!container) return;
-  const statuses = ['available','occupied','occupied','available','reserved','available','occupied','occupied','available','available','reserved','occupied','available','available','occupied','available','available','occupied','available','available'];
-  container.innerHTML = Array.from({length:20},(_,i)=>i+1).map((t, idx) => `
+  const statuses = ['available', 'occupied', 'occupied', 'available', 'reserved', 'available', 'occupied', 'occupied', 'available', 'available', 'reserved', 'occupied', 'available', 'available', 'occupied', 'available', 'available', 'occupied', 'available', 'available'];
+  container.innerHTML = Array.from({ length: 20 }, (_, i) => i + 1).map((t, idx) => `
     <div class="table-status-card ${statuses[idx]}" onclick="toggleTableStatus(this,'${statuses[idx]}',${t})">
       <div class="table-icon">🍽</div>
       <div class="table-name">Table ${t}</div>

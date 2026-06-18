@@ -141,6 +141,15 @@
           <input type="text" class="form-input" id="co-name" placeholder="e.g. Sophie M.">
         </div>
         <div class="form-group">
+          <label class="form-label">Payment Method</label>
+          <select class="form-input" id="co-payment">
+            <option value="upi">UPI</option>
+            <option value="cash">Cash</option>
+            <option value="card">Card</option>
+            <option value="razorpay">Razorpay</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label class="form-label">Special Instructions</label>
           <textarea class="form-input" id="co-notes" rows="2" placeholder="Allergies, preferences, requests..." style="resize:none"></textarea>
         </div>
@@ -405,8 +414,9 @@
     function placeOrder() {
       Orders.load();
       const name = document.getElementById('co-name').value.trim() || 'Guest';
+      const paymentMethod = document.getElementById('co-payment').value;
       const notes = document.getElementById('co-notes').value.trim();
-      const order = Orders.create(Cart.items, tableNum, name, notes);
+      const order = Orders.create(Cart.items, tableNum, name, notes, paymentMethod);
       Cart.clear();
       closeCheckout();
       renderMenu();

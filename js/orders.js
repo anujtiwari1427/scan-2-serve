@@ -27,13 +27,14 @@ const Orders = {
     return this;
   },
 
-  create(cartItems, tableNum, customerName, notes = '') {
+  create(cartItems, tableNum, customerName, notes = '', paymentMethod = 'cash') {
     const id = 'ORD-' + Date.now().toString(36).toUpperCase();
     const order = {
       id,
       table: tableNum,
       customer: customerName || 'Guest',
       items: cartItems.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
+      paymentMethod,
       notes,
       status: 'pending',
       subtotal: cartItems.reduce((s, i) => s + i.price * i.qty, 0),
