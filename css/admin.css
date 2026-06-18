@@ -233,3 +233,22 @@
   .admin-page { padding: 20px 16px; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ── Login Screen ── */
+.admin-login-screen {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg-primary);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.admin-login-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-xl);
+  padding: 40px; width: 100%; max-width: 400px;
+  box-shadow: var(--shadow-gold), var(--shadow);
+  text-align: center;
+}
+.admin-login-logo { font-size: 2rem; margin-bottom: 16px; }
+.admin-login-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--gold); margin-bottom: 24px; }
+.admin-login-error { color: var(--danger); font-size: 0.85rem; margin-bottom: 16px; display: none; }

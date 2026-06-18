@@ -12,7 +12,25 @@
 </head>
 <body>
 
-<div class="admin-layout">
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="admin-login-screen" class="admin-login-screen">
+  <div class="admin-login-box">
+    <div class="admin-login-logo">🕯</div>
+    <div class="admin-login-title">Admin Access</div>
+    <div id="login-error" class="admin-login-error">Invalid ID or Password</div>
+    <div class="form-group" style="text-align:left">
+      <label class="form-label">Admin ID</label>
+      <input type="text" id="login-id" class="form-input" placeholder="Enter ID">
+    </div>
+    <div class="form-group" style="text-align:left;margin-top:16px;margin-bottom:24px">
+      <label class="form-label">Password</label>
+      <input type="password" id="login-pass" class="form-input" placeholder="Enter password">
+    </div>
+    <button class="btn btn-gold w-full" style="justify-content:center" onclick="handleLogin()">Secure Login</button>
+  </div>
+</div>
+
+<div class="admin-layout" id="admin-layout" style="display:none">
 
   <!-- ═══ SIDEBAR ═══ -->
   <aside class="admin-sidebar" id="admin-sidebar">

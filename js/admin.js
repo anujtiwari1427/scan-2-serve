@@ -3,12 +3,50 @@
 // ============================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  checkAuth();
   Orders.load();
   seedDemoOrders();
   initAdminNav();
   showPage('dashboard');
   startLiveRefresh();
 });
+
+// ── Auth ──
+async function hashText(text) {
+  const msgBuffer = new TextEncoder().encode(text);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function checkAuth() {
+  if (sessionStorage.getItem('scan2serve_admin_auth') === 'true') {
+    document.getElementById('admin-login-screen').style.display = 'none';
+    document.getElementById('admin-layout').style.display = 'grid';
+  }
+}
+
+async function handleLogin() {
+  const id = document.getElementById('login-id').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
+  
+  // SHA-256 hashes for ID "admin" and Password "admin123"
+  const validIdHash = '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918';
+  const validPassHash = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
+
+  const idHash = await hashText(id);
+  const passHash = await hashText(pass);
+
+  if (idHash === validIdHash && passHash === validPassHash) {
+    sessionStorage.setItem('scan2serve_admin_auth', 'true');
+    document.getElementById('admin-login-screen').style.display = 'none';
+    document.getElementById('admin-layout').style.display = 'grid';
+    document.getElementById('login-error').style.display = 'none';
+    showToast('Login successful!', 'success');
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
 
 // ── Navigation ──
 function initAdminNav() {
